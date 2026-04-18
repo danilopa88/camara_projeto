@@ -61,11 +61,18 @@ resource "google_storage_bucket_iam_member" "bronze_writer" {
   member = "serviceAccount:${google_service_account.ingestion_sa.email}"
 }
 
-# Permissão para o GitHub Actions SA "agir como" a ingestion-sa
+# Permissão para o GitHub Actions SA "agir como" a ingestion-sa (Nível de Recurso)
 resource "google_service_account_iam_member" "github_actions_act_as_ingestion" {
   service_account_id = google_service_account.ingestion_sa.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
+}
+
+# Permissão para o GitHub Actions SA "agir como" qualquer SA (Nível de Projeto - Mais forte)
+resource "google_project_iam_member" "github_actions_sa_user" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
 }
 
 data "archive_file" "ingestion_zip" {
@@ -105,7 +112,11 @@ resource "google_cloudfunctions2_function" "ingest_deputados" {
     ingress_settings      = "ALLOW_ALL" # Público conforme solicitado
   }
 
-  depends_on = [google_project_service.services]
+  depends_on = [
+    google_project_service.services,
+    google_service_account_iam_member.github_actions_act_as_ingestion,
+    google_project_iam_member.github_actions_sa_user
+  ]
 }
 
 resource "google_cloudfunctions2_function" "ingest_despesas" {
@@ -132,7 +143,11 @@ resource "google_cloudfunctions2_function" "ingest_despesas" {
     ingress_settings      = "ALLOW_ALL"
   }
 
-  depends_on = [google_project_service.services]
+  depends_on = [
+    google_project_service.services,
+    google_service_account_iam_member.github_actions_act_as_ingestion,
+    google_project_iam_member.github_actions_sa_user
+  ]
 }
 
 # --- Cloud Scheduler ---
