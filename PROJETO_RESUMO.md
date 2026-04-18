@@ -111,6 +111,19 @@ gcloud iam service-accounts add-iam-policy-binding $SA_EMAIL `
 
 ---
 
-### 🔜 Próximos Passos Sugeridos:
-1. **Deploy da API**: Subir o FastAPI para o Cloud Run.
-2. **Dashboard**: Conectar ferramentas de BI (Looker/PowerBI) na base Gold.
+## 📊 7. Sétima Etapa: Roteamento Inteligente (dbt)
+Resolvemos o problema de todos os dados caírem em um único dataset.
+- **Custom Macro**: Criamos a `generate_schema_name.sql` para extrair o ambiente (`dev_`) e anexar a camada correta.
+- **Configuração**: Agora o dbt sabe que a pasta `gold` deve ir para o dataset `dev_gold`, tornando o DW organizado e profissional.
+
+---
+
+## 🚀 8. Oitava Etapa: Entrega via API (Cloud Run)
+Levamos os resultados para o mundo real.
+- **Docker**: Criamos uma "mala" (contêiner) para a API FastAPI.
+- **Bootstrap Fix**: Usamos uma imagem temporária (`hello`) no Terraform para permitir a primeira criação do serviço, que é atualizada automaticamente pela esteira do GitHub.
+- **Cloud Run**: Hospedagem serverless e escalável que atende as requisições do Dashboard.
+
+---
+
+## 🔐 Apêndice: Comandos de Terminal (Manual)
