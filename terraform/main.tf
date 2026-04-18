@@ -61,6 +61,13 @@ resource "google_storage_bucket_iam_member" "bronze_writer" {
   member = "serviceAccount:${google_service_account.ingestion_sa.email}"
 }
 
+# Permissão para o GitHub Actions SA "agir como" a ingestion-sa
+resource "google_service_account_iam_member" "github_actions_act_as_ingestion" {
+  service_account_id = google_service_account.ingestion_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
+}
+
 data "archive_file" "ingestion_zip" {
   type        = "zip"
   source_dir  = "../ingestion"
