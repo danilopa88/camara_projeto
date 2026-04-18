@@ -18,4 +18,4 @@ SELECT
     url_documento,
     CURRENT_TIMESTAMP() AS data_processamento
 FROM stg
-WHERE valor_documento > 0
+WHERE valor_bruto > 0
