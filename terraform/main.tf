@@ -87,6 +87,13 @@ resource "google_project_iam_member" "github_actions_sa_user" {
   member  = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
 }
 
+# Permissão para o GitHub Actions SA gerenciar permissões (Auto-gestão de IAM)
+resource "google_project_iam_member" "github_actions_iam_admin" {
+  project = var.project_id
+  role    = "roles/resourcemanager.projectIamAdmin"
+  member  = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
+}
+
 # Permissão específica para agir como a conta padrão de computação (necessário para o Cloud Build)
 resource "google_project_iam_member" "github_actions_act_as_compute" {
   project = var.project_id
