@@ -4,7 +4,7 @@ config-version: 2
 # Projeto de Analytics da Câmara dos Deputados (Medallion Architecture)
 
 # Profile a ser usado (dbt Cloud configurará isso)
-profile: 'default'
+profile: 'camara_analytics'
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
