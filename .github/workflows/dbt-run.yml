@@ -22,7 +22,7 @@ jobs:
     env:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
       GCP_PROJECT_ID: project-c5dccf2b-d62c-4831-b0d
-      DBT_PROFILES_DIR: ./dbt
+      DBT_PROFILES_DIR: .
 
     steps:
       - name: Checkout
