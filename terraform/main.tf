@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.4"
+    }
   }
 }
 
@@ -12,14 +16,158 @@ provider "google" {
   region  = var.region
 }
 
+# --- APIs ---
+
+resource "google_project_service" "services" {
+  for_each = toset([
+    "cloudfunctions.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "run.googleapis.com",
+    "cloudscheduler.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "iam.googleapis.com",
+    "storage.googleapis.com"
+  ])
+  service            = each.key
+  disable_on_destroy = false
+}
+
 # --- Google Cloud Storage ---
+
+resource "google_storage_bucket" "functions_source" {
+  name          = "${var.project_id}-${var.environment}-functions-source"
+  location      = var.region
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
 
 resource "google_storage_bucket" "bronze_bucket" {
   name          = "${var.project_id}-${var.environment}-bronze"
   location      = var.region
   force_destroy = true
-
   uniform_bucket_level_access = true
+}
+
+# --- Cloud Functions (v2) ---
+
+resource "google_service_account" "ingestion_sa" {
+  account_id   = "ingestion-sa"
+  display_name = "Ingestion Service Account for Cloud Functions"
+}
+
+resource "google_storage_bucket_iam_member" "bronze_writer" {
+  bucket = google_storage_bucket.bronze_bucket.name
+  role   = "roles/storage.objectCreator"
+  member = "serviceAccount:${google_service_account.ingestion_sa.email}"
+}
+
+data "archive_file" "ingestion_zip" {
+  type        = "zip"
+  source_dir  = "../ingestion"
+  output_path = "ingestion.zip"
+  excludes    = ["__pycache__"]
+}
+
+resource "google_storage_bucket_object" "ingestion_code" {
+  name   = "ingestion-${data.archive_file.ingestion_zip.output_md5}.zip"
+  bucket = google_storage_bucket.functions_source.name
+  source = data.archive_file.ingestion_zip.output_path
+}
+
+resource "google_cloudfunctions2_function" "ingest_deputados" {
+  name        = "ingest-deputados"
+  location    = var.region
+  description = "Coleta dados de deputados da API da Câmara"
+
+  build_config {
+    runtime     = "python310"
+    entry_point = "ingest_deputados"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.functions_source.name
+        object = google_storage_bucket_object.ingestion_code.name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count = 1
+    available_memory   = "256Mi"
+    timeout_seconds    = 60
+    service_account_email = google_service_account.ingestion_sa.email
+    ingress_settings      = "ALLOW_ALL" # Público conforme solicitado
+  }
+
+  depends_on = [google_project_service.services]
+}
+
+resource "google_cloudfunctions2_function" "ingest_despesas" {
+  name        = "ingest-despesas"
+  location    = var.region
+  description = "Coleta despesas dos deputados da API da Câmara"
+
+  build_config {
+    runtime     = "python310"
+    entry_point = "ingest_despesas"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.functions_source.name
+        object = google_storage_bucket_object.ingestion_code.name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count = 1
+    available_memory   = "512Mi" # Despesas precisam de mais RAM
+    timeout_seconds    = 540     # Timeout longo para processar deputados
+    service_account_email = google_service_account.ingestion_sa.email
+    ingress_settings      = "ALLOW_ALL"
+  }
+
+  depends_on = [google_project_service.services]
+}
+
+# --- Cloud Scheduler ---
+
+resource "google_cloud_scheduler_job" "daily_ingest_deputados" {
+  name        = "daily-ingest-deputados"
+  description = "Dispara a ingestão de deputados diariamente"
+  schedule    = var.ingestion_cron
+  region      = var.region
+
+  http_target {
+    http_method = "POST"
+    uri         = google_cloudfunctions2_function.ingest_deputados.service_config[0].uri
+  }
+}
+
+resource "google_cloud_scheduler_job" "daily_ingest_despesas" {
+  name        = "daily-ingest-despesas"
+  description = "Dispara a ingestão de despesas diariamente"
+  schedule    = var.ingestion_cron
+  region      = var.region
+
+  http_target {
+    http_method = "POST"
+    uri         = google_cloudfunctions2_function.ingest_despesas.service_config[0].uri
+  }
+}
+
+# --- Public Access (requested) ---
+
+resource "google_cloud_run_service_iam_member" "deputados_public" {
+  location = google_cloudfunctions2_function.ingest_deputados.location
+  service  = google_cloudfunctions2_function.ingest_deputados.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+resource "google_cloud_run_service_iam_member" "despesas_public" {
+  location = google_cloudfunctions2_function.ingest_despesas.location
+  service  = google_cloudfunctions2_function.ingest_despesas.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 # --- BigQuery Datasets ---

@@ -14,3 +14,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "ingestion_cron" {
+  description = "Cron schedule for the ingestion function (default: daily at 03:00 AM)"
+  type        = string
+  default     = "0 3 * * *"
+}
