@@ -62,12 +62,20 @@ A esteira de integração e entrega contínua garante que qualquer mudança no c
 
 ---
 
-## 🚀 6. Entrega via API (Cloud Run)
-Os dados da camada Gold são expostos via uma API REST moderna para consumo de aplicações externas.
+## 📈 8. Oitava Etapa: Entrega via BI (Looker Studio)
+Em vez de uma API complexa, entregamos os dados diretamente para ferramentas de Business Intelligence.
 
-- **Código da API**: [`api/main.py`](api/main.py) (FastAPI).
-- **Containerização**: [`api/Dockerfile`](api/Dockerfile).
-- **Deploy**: Cloud Run (Serverless), escalando automaticamente de acordo com o tráfego.
+### Como conectar ao Looker Studio:
+1.  **Acesse**: [lookerstudio.google.com](https://lookerstudio.google.com/)
+2.  **Criar**: Selecione "Fonte de Dados" -> "BigQuery".
+3.  **Projeto**: Selecione o seu projeto (`project-c5dccf2b-d62c-4831-b0d`).
+4.  **Dataset**: Escolha `dev_gold`.
+5.  **Tabela**: Selecione a view **`vw_looker_analytics`**.
+6.  **Pronto!**: Agora você já tem todos os campos (nome do deputado, partido, valor, etc) prontos para arrastar e soltar em gráficos.
+
+### Modelo de Analytics (View):
+- **Arquivo**: [`dbt/models/gold/vw_looker_analytics.sql`](dbt/models/gold/vw_looker_analytics.sql)
+- **Função**: Consolida despesas com dados cadastrais dos deputados, facilitando a criação de filtros de partido e estado no dashboard.
 
 ---
 
