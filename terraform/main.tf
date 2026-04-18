@@ -305,7 +305,8 @@ resource "google_cloud_run_v2_service" "analytics_api" {
   template {
     service_account = google_service_account.api_sa.email
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.api_repo.repository_id}/analytics-api:latest"
+      # Imagem temporária para o primeiro deploy (Bootstrap)
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
       
       env {
         name  = "GCP_PROJECT_ID"
