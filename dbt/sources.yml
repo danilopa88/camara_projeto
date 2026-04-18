@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: internal_câmara
     database: "{{ env_var('GCP_PROJECT_ID') }}"
-    schema: bronze
+    schema: "{{ env_var('ENVIRONMENT', 'dev') }}_bronze"
     tables:
       - name: raw_deputados
         description: "Tabela externa apontando para o JSON de deputados no GCS"

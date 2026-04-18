@@ -10,8 +10,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configurações via variáveis de ambiente
-PROJECT_ID = os.getenv("GCP_PROJECT_ID", "project-c5dccf2b-d62c-4831-b0d")
-BUCKET_NAME = os.getenv("GCS_BUCKET_BRONZE", "deputados-bronze")
+PROJECT_ID = os.getenv("GCP_PROJECT_ID", "ID-DO-SEU-PROJETO-GCP")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
+BUCKET_NAME = os.getenv("GCS_BUCKET_BRONZE", f"{PROJECT_ID}-{ENVIRONMENT}-bronze")
 BASE_URL = "https://dadosabertos.camara.leg.br/api/v2"
 
 def get_gcs_client():
