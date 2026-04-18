@@ -1,4 +1,4 @@
-# Plataforma de Dados Medallion: Câmara dos Deputados 🚀
+# Plataforma de Dados Medallion: Câmara Federal do Brasil 🇧🇷🏛️
 
 Este documento é o guia técnico completo da solução de Data Warehouse construída para a análise de despesas da Câmara dos Deputados. Aqui detalhamos a arquitetura, os arquivos fonte e as decisões de engenharia.
 
