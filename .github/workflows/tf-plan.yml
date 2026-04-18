@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT: ${{ github.base_ref == 'main' && 'main' || 'dev' }}
+      TF_VAR_project_id: project-c5dccf2b-d62c-4831-b0d
 
     steps:
       - name: Checkout
@@ -35,5 +36,5 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="environment=${{ env.ENVIRONMENT }}"
+        run: terraform plan -input=false -var="environment=${{ env.ENVIRONMENT }}"
         working-directory: ./terraform

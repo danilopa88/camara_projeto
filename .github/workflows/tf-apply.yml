@@ -17,6 +17,7 @@ jobs:
     # Define o ambiente com base na branch (dev ou main)
     env:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
+      TF_VAR_project_id: project-c5dccf2b-d62c-4831-b0d
 
     steps:
       - name: Checkout
@@ -36,5 +37,5 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="environment=${{ env.ENVIRONMENT }}"
+        run: terraform apply -auto-approve -input=false -var="environment=${{ env.ENVIRONMENT }}"
         working-directory: ./terraform
