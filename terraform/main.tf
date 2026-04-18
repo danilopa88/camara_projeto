@@ -15,7 +15,7 @@ provider "google" {
 # --- Google Cloud Storage ---
 
 resource "google_storage_bucket" "bronze_bucket" {
-  name          = "${var.project_id}-bronze"
+  name          = "${var.project_id}-${var.environment}-bronze"
   location      = var.region
   force_destroy = true
 
@@ -25,22 +25,22 @@ resource "google_storage_bucket" "bronze_bucket" {
 # --- BigQuery Datasets ---
 
 resource "google_bigquery_dataset" "bronze" {
-  dataset_id                  = "bronze"
-  friendly_name               = "Bronze Layer"
+  dataset_id                  = "${var.environment}_bronze"
+  friendly_name               = "Bronze Layer (${var.environment})"
   description                 = "Dados brutos carregados via Cloud Functions"
   location                    = var.region
 }
 
 resource "google_bigquery_dataset" "silver" {
-  dataset_id                  = "silver"
-  friendly_name               = "Silver Layer"
+  dataset_id                  = "${var.environment}_silver"
+  friendly_name               = "Silver Layer (${var.environment})"
   description                 = "Dados limpos e tipados via dbt"
   location                    = var.region
 }
 
 resource "google_bigquery_dataset" "gold" {
-  dataset_id                  = "gold"
-  friendly_name               = "Gold Layer"
+  dataset_id                  = "${var.environment}_gold"
+  friendly_name               = "Gold Layer (${var.environment})"
   description                 = "Dados agregados e analytics via dbt"
   location                    = var.region
 }

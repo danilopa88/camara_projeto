@@ -12,7 +12,8 @@ app = FastAPI(title="API Dados Câmara - Analytics")
 
 # Configurações
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "ID-DO-SEU-PROJETO-GCP")
-DATASET_GOLD = "gold"  # Nome do dataset onde o dbt salva a camada Gold
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
+DATASET_GOLD = f"{ENVIRONMENT}_gold"  # Ex: dev_gold, prod_gold
 
 client = bigquery.Client(project=PROJECT_ID)
 
