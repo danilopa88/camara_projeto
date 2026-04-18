@@ -28,7 +28,7 @@ Isso criará automaticamente o bucket Bronze e os datasets `bronze`, `silver` e 
 ### 1. Ingestão
 Configure as variáveis de ambiente:
 ```bash
-export GCP_PROJECT_ID="project-c5dccf2b-d62c-4831-b0d"
+export GCP_PROJECT_ID="ID-DO-SEU-PROJETO-GCP"
 export GCS_BUCKET_BRONZE="seu-bucket-bronze"
 ```
 Instale as dependências e rode a função:
