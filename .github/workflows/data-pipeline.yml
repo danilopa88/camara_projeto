@@ -39,9 +39,47 @@ jobs:
         run: terraform apply -auto-approve -input=false -var="environment=${{ env.ENVIRONMENT }}"
         working-directory: ./terraform
 
+  api:
+    name: 'Build & Deploy API'
+    needs: terraform
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
+      PROJECT_ID: project-c5dccf2b-d62c-4831-b0d
+      REGION: us-central1
+      REPO: api-repo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/310127108141/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa@project-c5dccf2b-d62c-4831-b0d.iam.gserviceaccount.com'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Docker Auth'
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: 'Build and Push Container'
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/analytics-api:latest ./api
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/analytics-api:latest
+
+      - name: 'Deploy to Cloud Run'
+        run: |
+          gcloud run deploy analytics-api \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/analytics-api:latest \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated
+
   dbt:
     name: 'Analytics (dbt)'
-    needs: terraform # SÓ RODA SE O TERRAFORM PASSAR
+    needs: api # GARANTE QUE A API ESTEJA PRONTA
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}

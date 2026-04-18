@@ -48,6 +48,16 @@ resource "google_storage_bucket" "bronze_bucket" {
   uniform_bucket_level_access = true
 }
 
+# --- Artifact Registry ---
+
+resource "google_artifact_registry_repository" "api_repo" {
+  location      = var.region
+  repository_id = "api-repo"
+  description   = "Docker repository for the Analytics API"
+  format        = "DOCKER"
+  depends_on    = [google_project_service.services]
+}
+
 # --- Cloud Functions (v2) ---
 
 resource "google_service_account" "ingestion_sa" {
@@ -265,4 +275,75 @@ resource "google_bigquery_table" "raw_despesas" {
     source_format = "NEWLINE_DELIMITED_JSON"
     source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/despesas/*.json"]
   }
+}
+
+# --- Analytics API (Cloud Run) ---
+
+resource "google_service_account" "api_sa" {
+  account_id   = "api-sa"
+  display_name = "Service Account for Analytics API"
+}
+
+# Permissões da API no BigQuery (Somente Leitura e Execução de Job)
+resource "google_project_iam_member" "api_bq_viewer" {
+  project = var.project_id
+  role    = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:${google_service_account.api_sa.email}"
+}
+
+resource "google_project_iam_member" "api_bq_job_user" {
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = "serviceAccount:${google_service_account.api_sa.email}"
+}
+
+resource "google_cloud_run_v2_service" "analytics_api" {
+  name     = "analytics-api"
+  location = var.region
+  ingress  = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    service_account = google_service_account.api_sa.email
+    containers {
+      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.api_repo.repository_id}/analytics-api:latest"
+      
+      env {
+        name  = "GCP_PROJECT_ID"
+        value = var.project_id
+      }
+      env {
+        name  = "ENVIRONMENT"
+        value = var.environment
+      }
+      
+      ports {
+        container_port = 8080
+      }
+    }
+  }
+
+  # Aguarda o repositório e as permissões estarem prontos
+  depends_on = [
+    google_artifact_registry_repository.api_repo,
+    google_project_iam_member.api_bq_viewer,
+    google_project_iam_member.api_bq_job_user
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image, # O deploy real é feito via gcloud/pipeline
+    ]
+  }
+}
+
+# Torna a API Pública
+resource "google_cloud_run_v2_service_iam_member" "api_public" {
+  location = google_cloud_run_v2_service.analytics_api.location
+  name     = google_cloud_run_v2_service.analytics_api.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+output "api_url" {
+  value = google_cloud_run_v2_service.analytics_api.uri
 }
