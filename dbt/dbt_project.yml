@@ -1,0 +1,28 @@
+name: 'camara_analytics'
+version: '1.0.0'
+config-version: 2
+
+# Profile a ser usado (dbt Cloud configurará isso)
+profile: 'default'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuração das Camadas Medallion
+models:
+  camara_analytics:
+    bronze:
+      materialized: view  # Staging sempre como view
+    silver:
+      materialized: view  # Conforme solicitado pelo usuário
+    gold:
+      materialized: table # Conforme solicitado pelo usuário (performance para API)

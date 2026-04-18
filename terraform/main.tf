@@ -44,3 +44,27 @@ resource "google_bigquery_dataset" "gold" {
   description                 = "Dados agregados e analytics via dbt"
   location                    = var.region
 }
+
+# --- External Tables (Bronze Link) ---
+
+resource "google_bigquery_table" "raw_deputados" {
+  dataset_id = google_bigquery_dataset.bronze.dataset_id
+  table_id   = "raw_deputados"
+
+  external_data_configuration {
+    autodetect    = true
+    source_format = "NEWLINE_DELIMITED_JSON"
+    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/deputados/*.json"]
+  }
+}
+
+resource "google_bigquery_table" "raw_despesas" {
+  dataset_id = google_bigquery_dataset.bronze.dataset_id
+  table_id   = "raw_despesas"
+
+  external_data_configuration {
+    autodetect    = true
+    source_format = "NEWLINE_DELIMITED_JSON"
+    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/despesas/*.json"]
+  }
+}

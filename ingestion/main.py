@@ -22,11 +22,16 @@ def save_to_gcs(data, filename):
     client = get_gcs_client()
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
+    
+    # Converte a lista de dicionários para Newline Delimited JSON (NDJSON)
+    # Isso é o esperado pelo BigQuery para tabelas externas JSON
+    ndjson_data = "\n".join([json.dumps(item, ensure_ascii=False) for item in data])
+    
     blob.upload_from_string(
-        data=json.dumps(data, indent=2, ensure_ascii=False),
-        content_type='application/json'
+        data=ndjson_data,
+        content_type='application/x-ndjson'
     )
-    print(f"Arquivo {filename} salvo com sucesso no bucket {BUCKET_NAME}.")
+    print(f"Arquivo {filename} salvo com sucesso no bucket {BUCKET_NAME} no formato NDJSON.")
 
 @functions_framework.http
 def ingest_deputados(request):
