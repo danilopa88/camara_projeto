@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: internal_câmara
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: bronze
+    tables:
+      - name: raw_deputados
+        description: "Tabela externa apontando para o JSON de deputados no GCS"
+      - name: raw_despesas
+        description: "Tabela externa apontando para o JSON de despesas no GCS"
