@@ -3,7 +3,7 @@ version: '1.0.0'
 config-version: 2
 # Projeto de Analytics da Câmara dos Deputados (Medallion Architecture)
 
-# Profile a ser usado (dbt Cloud configurará isso)
+# Profile a ser usado
 profile: 'camara_analytics'
 
 model-paths: ["models"]
@@ -22,8 +22,8 @@ clean-targets:
 models:
   camara_analytics:
     bronze:
-      materialized: view  # Staging sempre como view
+      +materialized: view
     silver:
-      materialized: view  # Conforme solicitado pelo usuário
+      +materialized: view
     gold:
-      materialized: table # Conforme solicitado pelo usuário (performance para API)
+      +materialized: table

@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: internal_câmara
+  - name: chamber_api
     database: "{{ env_var('GCP_PROJECT_ID') }}"
     schema: "{{ env_var('ENVIRONMENT', 'dev') }}_bronze"
     tables:

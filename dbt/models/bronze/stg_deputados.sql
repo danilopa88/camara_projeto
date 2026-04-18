@@ -1,7 +1,7 @@
 -- stg_deputados.sql
 -- Extrai campos do JSON bruto de deputados
 WITH source AS (
-    SELECT * FROM {{ source('internal_câmara', 'raw_deputados') }}
+    SELECT * FROM {{ source('chamber_api', 'raw_deputados') }}
 )
 
 SELECT

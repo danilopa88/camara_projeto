@@ -1,6 +1,6 @@
 -- stg_despesas.sql
 WITH source AS (
-    SELECT * FROM {{ source('internal_câmara', 'raw_despesas') }}
+    SELECT * FROM {{ source('chamber_api', 'raw_despesas') }}
 )
 
 SELECT
