@@ -61,6 +61,18 @@ resource "google_storage_bucket_iam_member" "bronze_writer" {
   member = "serviceAccount:${google_service_account.ingestion_sa.email}"
 }
 
+# Permissões extras para que a conta possa realizar o Build (v2)
+resource "google_project_iam_member" "ingestion_build_roles" {
+  for_each = toset([
+    "roles/logging.logWriter",
+    "roles/artifactregistry.writer",
+    "roles/storage.objectViewer"
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.ingestion_sa.email}"
+}
+
 # Permissão para o GitHub Actions SA "agir como" a ingestion-sa (Nível de Recurso)
 resource "google_service_account_iam_member" "github_actions_act_as_ingestion" {
   service_account_id = google_service_account.ingestion_sa.name
@@ -103,6 +115,7 @@ resource "google_cloudfunctions2_function" "ingest_deputados" {
   build_config {
     runtime     = "python310"
     entry_point = "ingest_deputados"
+    service_account = google_service_account.ingestion_sa.id # USA A NOSSA CONTA NO BUILD
     source {
       storage_source {
         bucket = google_storage_bucket.functions_source.name
@@ -134,6 +147,7 @@ resource "google_cloudfunctions2_function" "ingest_despesas" {
   build_config {
     runtime     = "python310"
     entry_point = "ingest_despesas"
+    service_account = google_service_account.ingestion_sa.id # USA A NOSSA CONTA NO BUILD
     source {
       storage_source {
         bucket = google_storage_bucket.functions_source.name
