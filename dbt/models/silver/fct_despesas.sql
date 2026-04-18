@@ -13,7 +13,7 @@ SELECT
     data_despesa,
     numero_documento,
     valor_bruto,
-    nome_fornecedor,
+    fornecedor_nome,
     cnpj_cpf_fornecedor,
     url_documento,
     CURRENT_TIMESTAMP() AS data_processamento

@@ -10,9 +10,9 @@ deputados AS (
 SELECT
     dep.partido_sigla,
     dep.estado_sigla,
-    SUM(des.valor_documento) AS total_gasto,
+    SUM(des.valor_bruto) AS total_gasto,
     COUNT(DISTINCT dep.deputado_id) AS total_deputados,
-    SUM(des.valor_documento) / COUNT(DISTINCT dep.deputado_id) AS gasto_medio_por_deputado
+    SUM(des.valor_bruto) / COUNT(DISTINCT dep.deputado_id) AS gasto_medio_por_deputado
 FROM despesas des
 JOIN deputados dep ON des.deputado_id = dep.deputado_id
 GROUP BY 1, 2
