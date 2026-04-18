@@ -16,7 +16,7 @@ A solução é composta por quatro camadas principais:
 ## 🛠️ Tecnologias Utilizadas
 
 -   **Linguagem**: Python 3.9+
--   **Infra**: Terraform (State gerenciado remotamente no GCS )
+-   **Infra**: Terraform (State gerenciado remotamente no GCS)
 -   **Cloud**: Google Cloud Platform (GCS, BigQuery, IAM)
 -   **CI/CD**: GitHub Actions com **Workload Identity Federation (OIDC)**
 -   **Modelagem**: dbt Cloud (SQL)
