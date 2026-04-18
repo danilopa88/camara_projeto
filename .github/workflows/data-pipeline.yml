@@ -1,0 +1,75 @@
+name: 'Master Data Pipeline'
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Infrastructure (Terraform)'
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
+      TF_VAR_project_id: project-c5dccf2b-d62c-4831-b0d
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/310127108141/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa@project-c5dccf2b-d62c-4831-b0d.iam.gserviceaccount.com'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false -var="environment=${{ env.ENVIRONMENT }}"
+        working-directory: ./terraform
+
+  dbt:
+    name: 'Analytics (dbt)'
+    needs: terraform # SÓ RODA SE O TERRAFORM PASSAR
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
+      GCP_PROJECT_ID: project-c5dccf2b-d62c-4831-b0d
+      DBT_PROFILES_DIR: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/310127108141/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa@project-c5dccf2b-d62c-4831-b0d.iam.gserviceaccount.com'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-bigquery
+
+      - name: dbt Deps
+        run: dbt deps
+        working-directory: ./dbt
+
+      - name: dbt Build
+        run: dbt build --target ${{ env.ENVIRONMENT }}
+        working-directory: ./dbt
