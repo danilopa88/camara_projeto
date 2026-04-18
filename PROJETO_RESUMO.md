@@ -44,6 +44,15 @@ O ponto alto do projeto foi a automação via **GitHub Actions**:
 
 ---
 
+## 🐳 6. Sexta Etapa: Docker (A "Mala" da sua API)
+Para que a sua API rodasse no Google Cloud sem erros de "funciona na minha máquina", usamos o **Docker**. 
+
+- **O que ele faz?** Ele empacota o seu código junto com todas as ferramentas necessárias (Python, bibliotecas, configurações) dentro de um **Contêiner**. 
+- **Benefício**: Esse contêiner é como um arquivo blindado. O Google Cloud simplesmente o executa, garantindo que ele rode exatamente da mesma forma que rodaria no seu computador.
+- **Dockerfile**: É a "receita de bolo" que usamos para criar esse contêiner.
+
+---
+
 ## 🔐 Apêndice: Comandos de Terminal (Manual)
 
 Aqui estão os comandos críticos executados via terminal para "destravar" o projeto:
