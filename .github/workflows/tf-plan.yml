@@ -1,0 +1,34 @@
+name: 'Terraform Plan'
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  terraform-plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.base_ref == 'main' && 'main' || 'dev' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to GCP'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        run: terraform plan -var="environment=${{ env.ENVIRONMENT }}"
+        working-directory: ./terraform
