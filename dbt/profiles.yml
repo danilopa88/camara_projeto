@@ -1,0 +1,24 @@
+# profiles.yml
+camara_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth  # dbt detectar automaticamente as credenciais do GitHub Actions
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "{{ env_var('ENVIRONMENT') }}_silver" # Default para modelos sem config específica
+      location: us-central1
+      threads: 4
+      timeout_seconds: 300
+      priority: interactive
+      retries: 1
+    main:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "main_silver"
+      location: us-central1
+      threads: 4
+      timeout_seconds: 300
+      priority: interactive
+      retries: 1
