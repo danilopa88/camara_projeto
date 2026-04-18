@@ -23,7 +23,10 @@ models:
   camara_analytics:
     bronze:
       +materialized: view
+      +schema: bronze  # Gerará dev_bronze
     silver:
       +materialized: view
+      +schema: silver  # Gerará dev_silver
     gold:
       +materialized: table
+      +schema: gold    # Gerará dev_gold
