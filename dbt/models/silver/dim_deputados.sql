@@ -5,7 +5,7 @@ WITH stg AS (
 )
 
 SELECT
-    deputado_id,
+    id,
     nome_civil,
     partido_sigla,
     estado_sigla,
@@ -13,4 +13,4 @@ SELECT
     foto_url,
     CURRENT_TIMESTAMP() AS data_processamento
 FROM stg
-QUALIFY ROW_NUMBER() OVER (PARTITION BY deputado_id ORDER BY data_processamento DESC) = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY data_processamento DESC) = 1

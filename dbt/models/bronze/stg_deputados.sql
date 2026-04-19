@@ -6,7 +6,7 @@ WITH source AS (
 )
 
 SELECT
-    SAFE_CAST(id AS INT64) AS deputado_id,
+    SAFE_CAST(id AS INT64) AS id,
     nome AS nome_civil,
     siglaPartido AS partido_sigla,
     siglaUf AS estado_sigla,

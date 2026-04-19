@@ -28,4 +28,4 @@ SELECT
     -- Campo calculado para facilitar filtros de tempo no Looker
     DATE(d.ano, d.mes, 1) AS mes_referencia 
 FROM despesas d
-LEFT JOIN deputados p ON d.deputado_id = p.deputado_id
+LEFT JOIN deputados p ON d.deputado_id = p.id

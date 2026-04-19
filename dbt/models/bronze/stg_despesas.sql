@@ -6,6 +6,7 @@ WITH source AS (
 )
 
 SELECT
+    SAFE_CAST(id AS INT64) AS id,
     SAFE_CAST(idDeputado AS INT64) AS deputado_id,
     ano,
     mes,

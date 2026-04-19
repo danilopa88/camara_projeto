@@ -5,7 +5,8 @@ WITH stg AS (
 )
 
 SELECT
-    {{ dbt_utils.generate_surrogate_key(['deputado_id', 'data_despesa', 'numero_documento', 'valor_bruto']) }} AS despesa_key,
+    {{ dbt_utils.generate_surrogate_key(['id', 'deputado_id', 'data_despesa', 'numero_documento', 'valor_bruto']) }} AS despesa_key,
+    id,
     deputado_id,
     ano,
     mes,
