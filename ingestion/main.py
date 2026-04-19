@@ -52,8 +52,9 @@ def ingest_deputados(request):
         response.raise_for_status()
         data = response.json().get("dados", [])
         
-        # Geração de nome de arquivo com timestamp para evitar sobrescrita (Auditável)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Geração de nome de arquivo apenas com a data (IDEMPOTÊNCIA DIÁRIA)
+        # Se houver mais de uma execução no mesmo dia, o arquivo será sobrescrito
+        timestamp = datetime.now().strftime("%Y%m%d")
         filename = f"bronze/deputados/deputados_{timestamp}.json"
         
         # Persistência na camada Bronze (Raw Data)
@@ -98,8 +99,8 @@ def ingest_despesas(request):
                     exp["idDeputado"] = dep_id
                     all_expenses.append(exp)
         
-        # 3. Nomeação e persistência do lote de despesas
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # 3. Nomeação e persistência do lote de despesas (IDEMPOTÊNCIA DIÁRIA)
+        timestamp = datetime.now().strftime("%Y%m%d")
         filename = f"bronze/despesas/despesas_{timestamp}.json"
         
         save_to_gcs(all_expenses, filename)
