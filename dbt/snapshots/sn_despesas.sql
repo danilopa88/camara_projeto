@@ -1,11 +1,6 @@
 {% snapshot sn_despesas %}
 
 {{
-    /* 
-       Configuração do Snapshot de Despesas:
-       - unique_key='id': Chave gerada via hash para garantir unicidade técnica.
-       - strategy='check': Detecta mudanças nos valores e tipos de despesa.
-    */
     config(
       target_database=env_var('GCP_PROJECT_ID'),
       target_schema=env_var('ENVIRONMENT', 'dev') ~ '_snapshots',
@@ -14,6 +9,12 @@
       check_cols=['valorDocumento', 'valorLiquido', 'tipoDespesa'],
     )
 }}
+
+{# 
+   Configuração do Snapshot de Despesas:
+   - unique_key='id': Chave gerada via hash para garantir unicidade técnica.
+   - strategy='check': Detecta mudanças nos valores e tipos de despesa.
+#}
 
 WITH source_data AS (
     /* 
