@@ -58,7 +58,7 @@ def ingest_deputados(request):
         month = now.strftime("%m")
         day = now.strftime("%d")
         
-        filename = f"bronze/deputados/year={year}/month={month}/day={day}/deputados.json"
+        filename = f"bronze/deputados/year={year}/month={month}/deputados_{day}{month}{year}.json"
         
         # Persistência na camada Bronze (Raw Data)
         save_to_gcs(data, filename)
@@ -108,7 +108,7 @@ def ingest_despesas(request):
         month = now.strftime("%m")
         day = now.strftime("%d")
 
-        filename = f"bronze/despesas/year={year}/month={month}/day={day}/despesas.json"
+        filename = f"bronze/despesas/year={year}/month={month}/despesas_{day}{month}{year}.json"
         
         save_to_gcs(all_expenses, filename)
         
