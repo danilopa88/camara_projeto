@@ -147,6 +147,11 @@ resource "google_cloudfunctions2_function" "ingest_deputados" {
     timeout_seconds    = 60
     service_account_email = google_service_account.ingestion_sa.email
     ingress_settings      = "ALLOW_ALL" # Público conforme solicitado
+    
+    environment_variables = {
+      GCP_PROJECT_ID = var.project_id
+      ENVIRONMENT    = var.environment
+    }
   }
 
   depends_on = [
@@ -179,6 +184,11 @@ resource "google_cloudfunctions2_function" "ingest_despesas" {
     timeout_seconds    = 540     # Timeout longo para processar deputados
     service_account_email = google_service_account.ingestion_sa.email
     ingress_settings      = "ALLOW_ALL"
+    
+    environment_variables = {
+      GCP_PROJECT_ID = var.project_id
+      ENVIRONMENT    = var.environment
+    }
   }
 
   depends_on = [
@@ -191,10 +201,12 @@ resource "google_cloudfunctions2_function" "ingest_despesas" {
 # --- Cloud Scheduler ---
 
 resource "google_cloud_scheduler_job" "daily_ingest_deputados" {
-  name        = "daily-ingest-deputados"
-  description = "Dispara a ingestão de deputados diariamente"
-  schedule    = var.ingestion_cron
-  region      = var.region
+  name             = "daily-ingest-deputados"
+  description      = "Dispara a ingestão de deputados diariamente"
+  schedule         = var.ingestion_cron
+  region           = var.region
+  time_zone        = "America/Sao_Paulo"
+  attempt_deadline = "320s"
 
   http_target {
     http_method = "POST"
@@ -203,10 +215,12 @@ resource "google_cloud_scheduler_job" "daily_ingest_deputados" {
 }
 
 resource "google_cloud_scheduler_job" "daily_ingest_despesas" {
-  name        = "daily-ingest-despesas"
-  description = "Dispara a ingestão de despesas diariamente"
-  schedule    = var.ingestion_cron
-  region      = var.region
+  name             = "daily-ingest-despesas"
+  description      = "Dispara a ingestão de despesas diariamente"
+  schedule         = var.ingestion_cron
+  region           = var.region
+  time_zone        = "America/Sao_Paulo"
+  attempt_deadline = "600s"
 
   http_target {
     http_method = "POST"
