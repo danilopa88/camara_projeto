@@ -6,12 +6,12 @@ WITH stg AS (
 
 SELECT
     id,
-    nome_civil,
-    partido_sigla,
-    estado_sigla,
+    full_name,
+    party_initials,
+    state_initials,
     api_url,
-    foto_url,
-    data_processamento,
-    data_modificacao
+    photo_url,
+    processed_at,
+    modified_at
 FROM stg
-QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY data_processamento DESC) = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY processed_at DESC) = 1

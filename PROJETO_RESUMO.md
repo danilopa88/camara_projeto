@@ -31,51 +31,25 @@ Toda a infraestrutura do GCP é provisionada e gerenciada via código, permitind
 ---
 
 ## 📊 4. Analytics e Transformação (dbt)
-O **dbt (Data Build Tool)** atua como o motor de elite para transformar o dado bruto em inteligência de negócio.
+O **dbt (Data Build Tool)** atua como o motor de elite para transformar o dado bruto em inteligência de negócio, agora com nomes de colunas em **Inglês** e suporte a **CDC**.
+
+### 📸 Captura de Mudanças (CDC via Snapshots)
+- **Modelos**: [`dbt/snapshots/sn_deputados.sql`](dbt/snapshots/sn_deputados.sql) e [`sn_despesas.sql`](dbt/snapshots/sn_despesas.sql).
+- **Objetivo**: Implementação de **SCD Type 2** para garantir que nenhuma alteração na API seja perdida. Cada mudança gera uma nova versão do registro com `dbt_valid_from` e `dbt_valid_to`.
 
 ### 🥉 Camada Bronze (Staging)
-- **Modelos**: [`dbt/models/bronze/stg_despesas.sql`](dbt/models/bronze/stg_despesas.sql) e [`stg_deputados.sql`](dbt/models/bronze/stg_deputados.sql).
-- **Foco**: Renomeação de colunas, tipagem (Casting) e extração de campos complexos.
-- **Fontes**: [`dbt/models/bronze/sources.yml`](dbt/models/bronze/sources.yml).
+- **Foco**: Renomeação internacional (Eng), tipagem e geração de metadados de auditoria.
+- **Auditoria**:
+    - `processed_at`: Data da primeira inserção do registro (imutável).
+    - `modified_at`: Data da última alteração de versão no snapshot.
 
 ### 🥈 Camada Silver (Truth Layer)
-- **Modelo**: [`dbt/models/silver/fct_despesas.sql`](dbt/models/silver/fct_despesas.sql).
-- **Foco**: Limpeza técnica e **Deduplicação**. Removemos redundâncias para garantir que cada despesa seja única no DW.
+- **Foco**: Modelagem Dimensional (`dim_deputados`) e Fatos (`fct_despesas`).
+- **Nomes**: Padronização global (ex: `gross_amount` em vez de `valor_bruto`).
 
 ### 🥇 Camada Gold (Business Layer)
-- **Modelo**: [`dbt/models/gold/agg_despesas_partido.sql`](dbt/models/gold/agg_despesas_partido.sql).
-- **Foco**: Agregações de alto nível para Dashboards (ex: ranking de gastos por partido/estado).
-
-### 🛠️ Configuração de Roteamento
-- **Macro Customizada**: [`dbt/macros/generate_schema_name.sql`](dbt/macros/generate_schema_name.sql).
-- **Objetivo**: Garante que cada camada caia no dataset correto do BigQuery (`dev_bronze`, `dev_silver`, `dev_gold`).
-- **Arquivos de Projeto**: [`dbt_project.yml`](dbt/dbt_project.yml) e [`profiles.yml`](dbt/profiles.yml).
-
----
-
-## 🤖 5. Automação CI/CD (GitHub Actions)
-A esteira de integração e entrega contínua garante que qualquer mudança no código seja testada e deployada automaticamente.
-
-- **Workflow**: [`.github/workflows/data-pipeline.yml`](.github/workflows/data-pipeline.yml)
-- **Segurança**: Autenticação via **Workload Identity Federation** (Sem chaves JSON estáticas).
-- **Sequência**: Terraform (Infra) -> Docker Build (API) -> Cloud Run Deploy -> dbt Build (Analytics).
-
----
-
-## 📈 8. Oitava Etapa: Entrega via BI (Looker Studio)
-Em vez de uma API complexa, entregamos os dados diretamente para ferramentas de Business Intelligence.
-
-### Como conectar ao Looker Studio:
-1.  **Acesse**: [lookerstudio.google.com](https://lookerstudio.google.com/)
-2.  **Criar**: Selecione "Fonte de Dados" -> "BigQuery".
-3.  **Projeto**: Selecione o seu projeto (`project-c5dccf2b-d62c-4831-b0d`).
-4.  **Dataset**: Escolha `dev_gold`.
-5.  **Tabela**: Selecione a view **`vw_looker_analytics`**.
-6.  **Pronto!**: Agora você já tem todos os campos (nome do deputado, partido, valor, etc) prontos para arrastar e soltar em gráficos.
-
-### Modelo de Analytics (View):
-- **Arquivo**: [`dbt/models/gold/vw_looker_analytics.sql`](dbt/models/gold/vw_looker_analytics.sql)
-- **Função**: Consolida despesas com dados cadastrais dos deputados, facilitando a criação de filtros de partido e estado no dashboard.
+- **Modelo**: [`dbt/models/gold/vw_looker_analytics.sql`](dbt/models/gold/vw_looker_analytics.sql).
+- **Foco**: View pronta para o Looker Studio, unindo fatos e dimensões com aliases amigáveis.
 
 ---
 

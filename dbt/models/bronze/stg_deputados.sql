@@ -15,16 +15,16 @@ source AS (
 
 SELECT
     SAFE_CAST(id AS INT64) AS id,
-    nome AS nome_civil,
-    siglaPartido AS partido_sigla,
-    siglaUf AS estado_sigla,
+    nome AS full_name,
+    siglaPartido AS party_initials,
+    siglaUf AS state_initials,
     uri AS api_url,
-    urlFoto AS foto_url,
-    CAST(first_seen AS TIMESTAMP) AS data_processamento,
+    urlFoto AS photo_url,
+    CAST(first_seen AS TIMESTAMP) AS processed_at,
     CAST(
         CASE 
             WHEN current_version_start > first_seen THEN current_version_start 
             ELSE NULL 
         END AS TIMESTAMP
-    ) AS data_modificacao
+    ) AS modified_at
 FROM source

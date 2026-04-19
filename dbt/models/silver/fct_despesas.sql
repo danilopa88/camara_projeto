@@ -5,19 +5,19 @@ WITH stg AS (
 )
 
 SELECT
-    {{ dbt_utils.generate_surrogate_key(['id', 'deputado_id', 'data_despesa', 'numero_documento', 'valor_bruto']) }} AS despesa_key,
+    {{ dbt_utils.generate_surrogate_key(['id', 'deputy_id', 'expense_date', 'document_number', 'gross_amount']) }} AS expense_key,
     id,
-    deputado_id,
-    ano,
-    mes,
-    tipo_despesa,
-    data_despesa,
-    numero_documento,
-    valor_bruto,
-    fornecedor_nome,
-    cnpj_cpf_fornecedor,
-    url_documento,
-    data_processamento,
-    data_modificacao
+    deputy_id,
+    year,
+    month,
+    expense_type,
+    expense_date,
+    document_number,
+    gross_amount,
+    supplier_name,
+    supplier_tax_id,
+    document_url,
+    processed_at,
+    modified_at
 FROM stg
-WHERE valor_bruto > 0
+WHERE gross_amount > 0

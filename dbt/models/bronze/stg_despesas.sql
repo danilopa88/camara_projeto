@@ -15,22 +15,22 @@ source AS (
 
 SELECT
     id,
-    SAFE_CAST(idDeputado AS INT64) AS deputado_id,
-    ano,
-    mes,
-    tipoDespesa AS tipo_despesa,
-    dataDocumento AS data_despesa,
-    valorDocumento AS valor_bruto,
-    valorLiquido AS valor_liquido,
-    numDocumento AS numero_documento,
-    cnpjCpfFornecedor AS cnpj_cpf_fornecedor,
-    urlDocumento AS url_documento,
-    nomeFornecedor AS fornecedor_nome,
-    CAST(first_seen AS TIMESTAMP) AS data_processamento,
+    SAFE_CAST(idDeputado AS INT64) AS deputy_id,
+    ano AS year,
+    mes AS month,
+    tipoDespesa AS expense_type,
+    dataDocumento AS expense_date,
+    valorDocumento AS gross_amount,
+    valorLiquido AS net_amount,
+    numDocumento AS document_number,
+    cnpjCpfFornecedor AS supplier_tax_id,
+    urlDocumento AS document_url,
+    nomeFornecedor AS supplier_name,
+    CAST(first_seen AS TIMESTAMP) AS processed_at,
     CAST(
         CASE 
             WHEN current_version_start > first_seen THEN current_version_start 
             ELSE NULL 
         END AS TIMESTAMP
-    ) AS data_modificacao
+    ) AS modified_at
 FROM source

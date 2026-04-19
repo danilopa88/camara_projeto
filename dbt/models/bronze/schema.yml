@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: stg_deputados
+    description: "Tabela de staging dos deputados, extraída dos snapshots do CDC. Contém dados cadastrais básicos."
+    columns:
+      - name: id
+        description: "Identificador único original do deputado na API da Câmara."
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Nome civil completo do deputado."
+      - name: party_initials
+        description: "Sigla do partido político ao qual o deputado está filiado."
+      - name: state_initials
+        description: "Sigla do estado (UF) de representação."
+      - name: api_url
+        description: "URL da API para detalhes do deputado."
+      - name: photo_url
+        description: "URL da foto oficial do deputado."
+      - name: processed_at
+        description: "Timestamp da primeira vez que este registro foi inserido no banco de dados."
+      - name: modified_at
+        description: "Timestamp da última alteração detectada neste registro. Nulo se nunca alterado."
+
+  - name: stg_despesas
+    description: "Tabela de staging das despesas parlamentares, extraída dos snapshots do CDC."
+    columns:
+      - name: id
+        description: "Identificador único (Surrogate Key) gerado via hash para a despesa."
+        tests:
+          - unique
+          - not_null
+      - name: deputy_id
+        description: "ID do deputado vinculado à despesa."
+      - name: year
+        description: "Ano de ocorrência da despesa."
+      - name: month
+        description: "Mês de ocorrência da despesa."
+      - name: expense_type
+        description: "Descrição técnica do tipo de gasto realizado."
+      - name: expense_date
+        description: "Data em que a despesa foi realizada (Documento)."
+      - name: gross_amount
+        description: "Valor total/bruto da despesa."
+      - name: net_amount
+        description: "Valor líquido pago."
+      - name: document_number
+        description: "Número do documento fiscal ou recibo."
+      - name: supplier_tax_id
+        description: "CNPJ ou CPF do fornecedor."
+      - name: supplier_name
+        description: "Nome ou Razão Social do fornecedor."
+      - name: document_url
+        description: "Link para o documento digitalizado (se disponível)."
+      - name: processed_at
+        description: "Timestamp da primeira inserção desta despesa."
+      - name: modified_at
+        description: "Timestamp da última modificação nos campos chave da despesa."

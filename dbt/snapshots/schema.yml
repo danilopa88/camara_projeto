@@ -1,0 +1,18 @@
+version: 2
+
+snapshots:
+  - name: sn_deputados
+    description: "Snapshot CDC para rastrear mudanças cadastrais dos deputados (SCD Type 2)."
+    columns:
+      - name: id
+        description: "ID estável do deputado."
+      - name: dbt_valid_from
+        description: "Data de início desta versão do registro."
+      - name: dbt_valid_to
+        description: "Data de fim desta versão do registro (Nulo se atual)."
+
+  - name: sn_despesas
+    description: "Snapshot CDC para rastrear mudanças em notas fiscais ou valores de despesas."
+    columns:
+      - name: id
+        description: "Surrogate key composta (Deputado + Documento) para rastreio estável."

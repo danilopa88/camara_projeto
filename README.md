@@ -4,23 +4,22 @@ Projeto de Engenharia de Dados profissional utilizando a **Medallion Architectur
 
 ## 📊 Arquitetura do Projeto
 
-A solução é composta por quatro camadas principais:
+A solução é composta por cinco etapas principais:
 
-1.  **Ingestão (Cloud Functions)**: Scripts Python que coletam dados da API da Câmara e os armazenam no **Google Cloud Storage** (Camada Bronze).
-2.  **Infraestrutura (Terraform)**: Provisionamento dinâmico de recursos suportando múltiplos ambientes (`dev`, `release`, `main`).
-3.  **Transformação (dbt Cloud)**: Processamento de dados dentro do **BigQuery** (Bronze -> Silver -> Gold).
-4.  **Entrega (FastAPI)**: API de Analytics para servir rankings e insights sobre despesas parlamentares.
+1.  **Ingestão (Cloud Functions)**: Scripts Python que coletam dados e salvam em **NDJSON** no GCS.
+2.  **Captura de Mudanças (dbt Snapshots)**: Implementação de **CDC (Change Data Capture)** para rastrear o histórico de alterações cadastrais e financeiras (SCD Type 2).
+3.  **Staging (Bronze Layer)**: Limpeza inicial e padronização. Aqui geramos os metadados de auditoria:
+    -   `processed_at`: Data da primeira aparição do registro.
+    -   `modified_at`: Data da última alteração detectada.
+4.  **Transformação (Silver Layer)**: Modelagem dimensional e fatos com nomes de colunas internacionalizados (**English**).
+5.  **Exposição (Gold Layer)**: Views otimizadas para consumo direto no **Looker Studio**.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
--   **Linguagem**: Python 3.9+
--   **Infra**: Terraform (State gerenciado remotamente no GCS)
--   **Cloud**: Google Cloud Platform (GCS, BigQuery, IAM)
--   **CI/CD**: GitHub Actions com **Workload Identity Federation (OIDC)**
--   **Modelagem**: dbt Cloud (SQL)
--   **API**: FastAPI & Uvicorn
+-   **Modelagem**: dbt Cloud (SQL) com nomes de colunas em **Inglês** para compatibilidade global.
+-   **Documentação**: Catálogo de dados integrado via arquivos `schema.yml`.
 
 ---
 

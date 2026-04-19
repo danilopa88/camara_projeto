@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: vw_looker_analytics
+    description: "Visão consolidada para consumo no Looker Studio. Une despesas e dados cadastrais de deputados."
+    columns:
+      - name: expense_key
+        description: "Chave única da despesa."
+      - name: deputy_name
+        description: "Nome do deputado."
+      - name: party_initials
+        description: "Partido."
+      - name: gross_amount
+        description: "Valor do gasto."
+      - name: reference_month
+        description: "Data truncada para o primeiro dia do mês (útil para filtros de tempo)."
+
+  - name: agg_despesas_partido
+    description: "Agregação mensal de gastos totais e média por deputado em cada partido."
+    columns:
+      - name: party_initials
+        description: "Sigla do partido."
+      - name: total_amount
+        description: "Soma total de gastos no período."
+      - name: total_deputies
+        description: "Contagem de deputados com gastos no período."
+      - name: avg_amount_per_deputy
+        description: "Gasto médio calculado por parlamentar."

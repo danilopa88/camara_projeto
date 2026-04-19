@@ -14,18 +14,18 @@ deputados AS (
 )
 
 SELECT
-    d.despesa_key,
-    d.ano,
-    d.mes,
-    d.data_despesa,
-    d.tipo_despesa,
-    d.valor_bruto,
-    d.fornecedor_nome,
-    p.nome_civil AS deputado_nome,
-    p.partido_sigla,
-    p.estado_sigla,
-    p.foto_url AS deputado_foto_url,
-    -- Campo calculado para facilitar filtros de tempo no Looker
-    DATE(d.ano, d.mes, 1) AS mes_referencia 
+    d.expense_key,
+    d.year,
+    d.month,
+    d.expense_date,
+    d.expense_type,
+    d.gross_amount,
+    d.supplier_name,
+    p.full_name AS deputy_name,
+    p.party_initials,
+    p.state_initials,
+    p.photo_url AS deputy_photo_url,
+    -- Reference month for easier filtering in Looker
+    DATE(d.year, d.month, 1) AS reference_month 
 FROM despesas d
-LEFT JOIN deputados p ON d.deputado_id = p.id
+LEFT JOIN deputados p ON d.deputy_id = p.id

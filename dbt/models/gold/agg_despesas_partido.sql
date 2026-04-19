@@ -8,14 +8,14 @@ deputados AS (
 )
 
 SELECT
-    dep.partido_sigla,
-    dep.estado_sigla,
-    des.mes,
-    des.ano,
-    SUM(des.valor_bruto) AS total_gasto,
-    COUNT(DISTINCT dep.id) AS total_deputados,
-    SUM(des.valor_bruto) / COUNT(DISTINCT dep.id) AS gasto_medio_por_deputado
+    dep.party_initials,
+    dep.state_initials,
+    des.month,
+    des.year,
+    SUM(des.gross_amount) AS total_amount,
+    COUNT(DISTINCT dep.id) AS total_deputies,
+    SUM(des.gross_amount) / COUNT(DISTINCT dep.id) AS avg_amount_per_deputy
 FROM despesas des
-JOIN deputados dep ON des.deputado_id = dep.id
+JOIN deputados dep ON des.deputy_id = dep.id
 GROUP BY 1, 2, 3, 4
-ORDER BY total_gasto DESC
+ORDER BY total_amount DESC

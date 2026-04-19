@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: dim_deputados
+    description: "Tabela de dimensão de deputados. Dados limpos, únicos e auditáveis."
+    columns:
+      - name: id
+        description: "Primary key: ID oficial do deputado."
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Nome completo do parlamentar."
+      - name: party_initials
+        description: "Partido político."
+      - name: state_initials
+        description: "Estado de representação."
+      - name: photo_url
+        description: "Link para foto oficial."
+      - name: processed_at
+        description: "Data da primeira inserção no sistema."
+      - name: modified_at
+        description: "Data da última alteração de cadastro."
+
+  - name: fct_despesas
+    description: "Tabela de fatos contendo todas as despesas parlamentares validadas."
+    columns:
+      - name: expense_key
+        description: "Surrogate Key única para a despesa."
+        tests:
+          - unique
+          - not_null
+      - name: id
+        description: "ID original do snapshot de despesa."
+      - name: deputy_id
+        description: "Foreign key: ID do deputado (conecta com dim_deputados)."
+      - name: year
+        description: "Ano da despesa."
+      - name: month
+        description: "Mês da despesa."
+      - name: expense_type
+        description: "Categoria do gasto."
+      - name: gross_amount
+        description: "Valor total da nota fiscal."
+      - name: supplier_name
+        description: "Nome do fornecedor ou prestador."
+      - name: processed_at
+        description: "Data de processamento original."
+      - name: modified_at
+        description: "Data de alteração técnica."
