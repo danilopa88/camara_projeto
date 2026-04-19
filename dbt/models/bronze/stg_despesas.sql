@@ -1,6 +1,8 @@
 -- stg_despesas.sql
+-- Extrai campos do snapshot de despesas (CDC)
 WITH source AS (
-    SELECT * FROM {{ source('chamber_api', 'raw_despesas') }}
+    SELECT * FROM {{ ref('sn_despesas') }}
+    WHERE dbt_valid_to IS NULL
 )
 
 SELECT

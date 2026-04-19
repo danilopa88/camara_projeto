@@ -1,7 +1,8 @@
 -- stg_deputados.sql
--- Extrai campos do JSON bruto de deputados
+-- Extrai campos do snapshot de deputados (CDC)
 WITH source AS (
-    SELECT * FROM {{ source('chamber_api', 'raw_deputados') }}
+    SELECT * FROM {{ ref('sn_deputados') }}
+    WHERE dbt_valid_to IS NULL
 )
 
 SELECT
