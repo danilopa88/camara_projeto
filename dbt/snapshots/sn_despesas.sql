@@ -6,13 +6,13 @@
       target_schema=env_var('ENVIRONMENT', 'dev') ~ '_snapshots',
       unique_key='id',
       strategy='check',
-      check_cols=['valorDocumento', 'valorLiquido', 'dataDocumento', 'tipoDespesa'],
+      check_cols=['valorDocumento', 'valorLiquido', 'tipoDespesa'],
     )
 }}
 
 SELECT 
     *,
-    {{ dbt_utils.generate_surrogate_key(['idDeputado', 'numDocumento', 'valorDocumento', 'dataDocumento']) }} AS id
+    {{ dbt_utils.generate_surrogate_key(['idDeputado', 'numDocumento', 'dataDocumento']) }} AS id
 FROM {{ source('chamber_api', 'raw_despesas') }}
 
 {% endsnapshot %}

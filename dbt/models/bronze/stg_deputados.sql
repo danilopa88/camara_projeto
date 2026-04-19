@@ -1,7 +1,15 @@
 -- stg_deputados.sql
--- Extrai campos do snapshot de deputados (CDC)
-WITH source AS (
-    SELECT * FROM {{ ref('sn_deputados') }}
+-- Extrai campos do snapshot de deputados com lógica de auditoria (CDC)
+WITH snapshot_data AS (
+    SELECT 
+        *,
+        MIN(dbt_valid_from) OVER (PARTITION BY id) as first_seen,
+        dbt_valid_from as current_version_start
+    FROM {{ ref('sn_deputados') }}
+),
+
+source AS (
+    SELECT * FROM snapshot_data
     WHERE dbt_valid_to IS NULL
 )
 
@@ -12,5 +20,11 @@ SELECT
     siglaUf AS estado_sigla,
     uri AS api_url,
     urlFoto AS foto_url,
-    CURRENT_TIMESTAMP() AS data_processamento
+    CAST(first_seen AS TIMESTAMP) AS data_processamento,
+    CAST(
+        CASE 
+            WHEN current_version_start > first_seen THEN current_version_start 
+            ELSE NULL 
+        END AS TIMESTAMP
+    ) AS data_modificacao
 FROM source

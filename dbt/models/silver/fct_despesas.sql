@@ -17,6 +17,7 @@ SELECT
     fornecedor_nome,
     cnpj_cpf_fornecedor,
     url_documento,
-    CURRENT_TIMESTAMP() AS data_processamento
+    data_processamento,
+    data_modificacao
 FROM stg
 WHERE valor_bruto > 0

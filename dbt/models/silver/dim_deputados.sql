@@ -11,6 +11,7 @@ SELECT
     estado_sigla,
     api_url,
     foto_url,
-    CURRENT_TIMESTAMP() AS data_processamento
+    data_processamento,
+    data_modificacao
 FROM stg
 QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY data_processamento DESC) = 1
