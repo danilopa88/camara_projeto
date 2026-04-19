@@ -10,6 +10,9 @@
     )
 }}
 
-SELECT * FROM {{ source('chamber_api', 'raw_despesas') }}
+SELECT 
+    *,
+    {{ dbt_utils.generate_surrogate_key(['idDeputado', 'numDocumento', 'valorDocumento', 'dataDocumento']) }} AS id
+FROM {{ source('chamber_api', 'raw_despesas') }}
 
 {% endsnapshot %}
