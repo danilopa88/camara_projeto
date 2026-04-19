@@ -276,7 +276,13 @@ resource "google_bigquery_table" "raw_deputados" {
   external_data_configuration {
     autodetect    = true
     source_format = "NEWLINE_DELIMITED_JSON"
-    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/deputados/*.json"]
+    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/deputados/*"]
+    
+    hive_partitioning_options {
+      mode                   = "STRINGS"
+      source_uri_prefix      = "gs://${google_storage_bucket.bronze_bucket.name}/bronze/deputados/"
+      require_partition_filter = false
+    }
   }
 }
 
@@ -287,7 +293,13 @@ resource "google_bigquery_table" "raw_despesas" {
   external_data_configuration {
     autodetect    = true
     source_format = "NEWLINE_DELIMITED_JSON"
-    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/despesas/*.json"]
+    source_uris   = ["gs://${google_storage_bucket.bronze_bucket.name}/bronze/despesas/*"]
+
+    hive_partitioning_options {
+      mode                   = "STRINGS"
+      source_uri_prefix      = "gs://${google_storage_bucket.bronze_bucket.name}/bronze/despesas/"
+      require_partition_filter = false
+    }
   }
 }
 

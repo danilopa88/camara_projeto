@@ -52,10 +52,13 @@ def ingest_deputados(request):
         response.raise_for_status()
         data = response.json().get("dados", [])
         
-        # Geração de nome de arquivo apenas com a data (IDEMPOTÊNCIA DIÁRIA)
-        # Se houver mais de uma execução no mesmo dia, o arquivo será sobrescrito
-        timestamp = datetime.now().strftime("%Y%m%d")
-        filename = f"bronze/deputados/deputados_{timestamp}.json"
+        # Estrutura Hive Partitioning: bronze/deputados/year=YYYY/month=MM/day=DD/
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+        
+        filename = f"bronze/deputados/year={year}/month={month}/day={day}/deputados.json"
         
         # Persistência na camada Bronze (Raw Data)
         save_to_gcs(data, filename)
@@ -99,9 +102,13 @@ def ingest_despesas(request):
                     exp["idDeputado"] = dep_id
                     all_expenses.append(exp)
         
-        # 3. Nomeação e persistência do lote de despesas (IDEMPOTÊNCIA DIÁRIA)
-        timestamp = datetime.now().strftime("%Y%m%d")
-        filename = f"bronze/despesas/despesas_{timestamp}.json"
+        # 3. Nomeação e persistência em estrutura Hive Partitioning
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+
+        filename = f"bronze/despesas/year={year}/month={month}/day={day}/despesas.json"
         
         save_to_gcs(all_expenses, filename)
         
