@@ -10,5 +10,6 @@ SELECT
     siglaPartido AS partido_sigla,
     siglaUf AS estado_sigla,
     uri AS api_url,
-    urlFoto AS foto_url
+    urlFoto AS foto_url,
+    CURRENT_TIMESTAMP() AS data_processamento
 FROM source

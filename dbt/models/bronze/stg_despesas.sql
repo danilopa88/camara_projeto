@@ -14,5 +14,6 @@ SELECT
     numDocumento AS numero_documento,
     cnpjCpfFornecedor AS cnpj_cpf_fornecedor,
     urlDocumento AS url_documento,
-    nomeFornecedor AS fornecedor_nome
+    nomeFornecedor AS fornecedor_nome,
+    CURRENT_TIMESTAMP() AS data_processamento
 FROM source
