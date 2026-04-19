@@ -83,7 +83,7 @@ jobs:
 
   dbt:
     name: 'Analytics (dbt)'
-    needs: api # GARANTE QUE A API ESTEJA PRONTA
+    needs: terraform # Rodar em paralelo com o Job da API
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
@@ -103,6 +103,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip' # Cache automático de dependências do Python
+
+      - name: Cache dbt packages
+        uses: actions/cache@v4
+        with:
+          path: dbt/dbt_packages
+          key: ${{ runner.os }}-dbt-${{ hashFiles('dbt/packages.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-dbt-
 
       - name: Install dependencies
         run: |
