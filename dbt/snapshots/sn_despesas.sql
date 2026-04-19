@@ -10,9 +10,20 @@
     )
 }}
 
+WITH source_data AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY idDeputado, numDocumento, dataDocumento, valorDocumento, tipoDespesa 
+            ORDER BY numDocumento -- Dummy order for identical rows
+        ) as row_num
+    FROM {{ source('chamber_api', 'raw_despesas') }}
+)
+
 SELECT 
     *,
-    {{ dbt_utils.generate_surrogate_key(['idDeputado', 'numDocumento', 'dataDocumento']) }} AS id
-FROM {{ source('chamber_api', 'raw_despesas') }}
+    {{ dbt_utils.generate_surrogate_key(['idDeputado', 'numDocumento', 'dataDocumento', 'valorDocumento', 'tipoDespesa']) }} AS id
+FROM source_data
+WHERE row_num = 1
 
 {% endsnapshot %}
