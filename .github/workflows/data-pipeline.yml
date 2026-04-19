@@ -1,5 +1,7 @@
 name: 'Master Data Pipeline'
 
+# 1. Gatilhos: O pipeline roda automaticamente em pushes para 'dev' ou 'main'
+# Também permite execução manual via 'workflow_dispatch'
 on:
   push:
     branches:
@@ -7,15 +9,21 @@ on:
       - main
   workflow_dispatch:
 
+# 2. Permissões necessárias para autenticação Keyless (OIDC)
+# id-token: write permite que o GitHub gere um token temporário para o Google Cloud
 permissions:
   id-token: write
   contents: read
 
+# 3. Controle de Concorrência: Evita que dois deploys rodem ao mesmo tempo
+# Se você fizer um novo push, o anterior é cancelado para evitar conflitos no Terraform
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # 🏗️ FASE 1: INFRAESTRUTURA (Terraform)
+  # Prepara o terreno: buckets, datasets, APIs e contas de serviço
   terraform:
     name: 'Infrastructure (Terraform)'
     runs-on: ubuntu-latest
@@ -26,6 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Autenticação segura sem chaves JSON estáticas
       - name: 'Authenticate to GCP'
         uses: 'google-github-actions/auth@v2'
         with:
@@ -43,6 +52,8 @@ jobs:
         run: terraform apply -auto-approve -input=false -var="environment=${{ env.ENVIRONMENT }}"
         working-directory: ./terraform
 
+  # 🚀 FASE 2: API & CONTAINER (Docker)
+  # Roda APÓS o Terraform estar pronto (needs: terraform)
   api:
     name: 'Build & Deploy API'
     needs: terraform
@@ -65,14 +76,17 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
+      # Autoriza o Docker a enviar imagens para o Google Artifact Registry
       - name: 'Docker Auth'
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
+      # Constrói o 'pacote' da API e envia para o Google
       - name: 'Build and Push Container'
         run: |
           docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/analytics-api:latest ./api
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/analytics-api:latest
 
+      # Atualiza o serviço no Cloud Run com a nova imagem
       - name: 'Deploy to Cloud Run'
         run: |
           gcloud run deploy analytics-api \
@@ -81,9 +95,11 @@ jobs:
             --platform managed \
             --allow-unauthenticated
 
+  # 📊 FASE 3: ANALYTICS (dbt)
+  # Roda EM PARALELO com a API para ganhar velocidade
   dbt:
     name: 'Analytics (dbt)'
-    needs: terraform # Rodar em paralelo com o Job da API
+    needs: terraform
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
@@ -103,8 +119,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip' # Cache automático de dependências do Python
+          cache: 'pip' # Acelera o deploy reutilizando bibliotecas instaladas
 
+      # Cache específico para pacotes do dbt (como dbt-utils)
       - name: Cache dbt packages
         uses: actions/cache@v4
         with:
@@ -121,6 +138,7 @@ jobs:
         run: dbt deps
         working-directory: ./dbt
 
+      # Constrói os modelos Bronze, Silver e Gold no BigQuery
       - name: dbt Build
         run: dbt build --target ${{ env.ENVIRONMENT }}
         working-directory: ./dbt

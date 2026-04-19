@@ -1,5 +1,7 @@
 name: 'Terraform Plan'
 
+# 1. Gatilho: Este workflow roda apenas em PULL REQUESTS
+# Ele serve para validar as mudanças antes de elas serem aplicadas no 'dev' ou 'main'
 on:
   pull_request:
     branches:
@@ -7,14 +9,16 @@ on:
       - main
 
 permissions:
-  id-token: write
+  id-token: write # Necessário para autenticação OIDC
   contents: read
 
 jobs:
+  # 🔍 FASE DE VALIDAÇÃO: Simula o deploy da infraestrutura
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     env:
+      # Identifica se o alvo final é a base main ou dev
       ENVIRONMENT: ${{ github.base_ref == 'main' && 'main' || 'dev' }}
       TF_VAR_project_id: project-c5dccf2b-d62c-4831-b0d
 
@@ -22,6 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Autenticação idêntica ao pipeline principal para acessar o estado (GCS)
       - name: 'Authenticate to GCP'
         uses: 'google-github-actions/auth@v2'
         with:
@@ -35,6 +40,8 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
+      # O comando 'plan' gera um relatório do que SERÁ criado, alterado ou deletado.
+      # Ele NÃO altera nada na nuvem, apenas informa o desenvolvedor.
       - name: Terraform Plan
         run: terraform plan -input=false -var="environment=${{ env.ENVIRONMENT }}"
         working-directory: ./terraform
