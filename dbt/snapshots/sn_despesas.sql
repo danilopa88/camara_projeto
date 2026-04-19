@@ -25,7 +25,12 @@ WITH source_data AS (
     SELECT 
         *,
         ROW_NUMBER() OVER (
-            PARTITION BY idDeputado, numDocumento, dataDocumento, valorDocumento, tipoDespesa 
+            PARTITION BY 
+                idDeputado, 
+                numDocumento, 
+                dataDocumento, 
+                CAST(valorDocumento AS STRING), 
+                tipoDespesa 
             ORDER BY numDocumento 
         ) as row_num
     FROM {{ source('chamber_api', 'raw_despesas') }}
