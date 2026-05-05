@@ -17,6 +17,15 @@
 #}
 
 -- Seleção direta dos dados brutos de deputados para rastreio de alterações
-SELECT * FROM {{ source('chamber_api', 'raw_deputados') }}
+WITH source_data AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER(PARTITION BY id ORDER BY id) as rn
+    FROM {{ source('chamber_api', 'raw_deputados') }}
+)
+
+SELECT * EXCEPT(rn)
+FROM source_data
+WHERE rn = 1
 
 {% endsnapshot %}
