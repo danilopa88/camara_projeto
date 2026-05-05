@@ -4,7 +4,7 @@ WITH stg AS (
     SELECT * FROM {{ ref('stg_despesas') }}
 )
 
-SELECT
+SELECT DISTINCT
     {{ dbt_utils.generate_surrogate_key(['id', 'deputy_id', 'expense_date', 'document_number', 'gross_amount']) }} AS expense_key,
     id,
     deputy_id,
@@ -16,8 +16,6 @@ SELECT
     gross_amount,
     supplier_name,
     supplier_tax_id,
-    document_url,
-    processed_at,
-    modified_at
+    document_url
 FROM stg
 WHERE gross_amount > 0
