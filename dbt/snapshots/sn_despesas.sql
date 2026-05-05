@@ -30,7 +30,7 @@ WITH source_data AS (
                 idDeputado, 
                 numDocumento, 
                 dataDocumento, 
-                CAST(valorDocumento AS STRING), 
+                valorDocumento, 
                 tipoDespesa 
             ORDER BY numDocumento 
         ) as row_num
