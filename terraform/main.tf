@@ -251,6 +251,7 @@ resource "google_bigquery_dataset" "bronze" {
   friendly_name               = "Bronze Layer (${var.environment})"
   description                 = "Dados brutos carregados via Cloud Functions"
   location                    = var.region
+  delete_contents_on_destroy  = true
 }
 
 resource "google_bigquery_dataset" "silver" {
@@ -258,6 +259,7 @@ resource "google_bigquery_dataset" "silver" {
   friendly_name               = "Silver Layer (${var.environment})"
   description                 = "Dados limpos e tipados via dbt"
   location                    = var.region
+  delete_contents_on_destroy  = true
 }
 
 resource "google_bigquery_dataset" "gold" {
@@ -265,6 +267,7 @@ resource "google_bigquery_dataset" "gold" {
   friendly_name               = "Gold Layer (${var.environment})"
   description                 = "Dados agregados e analytics via dbt"
   location                    = var.region
+  delete_contents_on_destroy  = true
 }
 
 # --- External Tables (Bronze Link) ---
@@ -272,6 +275,7 @@ resource "google_bigquery_dataset" "gold" {
 resource "google_bigquery_table" "raw_deputados" {
   dataset_id = google_bigquery_dataset.bronze.dataset_id
   table_id   = "raw_deputados"
+  deletion_protection = false
 
   external_data_configuration {
     autodetect    = true
@@ -289,6 +293,7 @@ resource "google_bigquery_table" "raw_deputados" {
 resource "google_bigquery_table" "raw_despesas" {
   dataset_id = google_bigquery_dataset.bronze.dataset_id
   table_id   = "raw_despesas"
+  deletion_protection = false
 
   external_data_configuration {
     autodetect    = true
