@@ -2,7 +2,7 @@
 -- Camada Silver: Fato de despesas limpa e tipada
 WITH stg AS (
     SELECT * FROM {{ ref('stg_despesas') }}
-);
+)
 
 SELECT 
     {{ dbt_utils.generate_surrogate_key(['id', 'deputy_id', 'expense_date', 'document_number', 'gross_amount']) }} AS expense_key,
